@@ -139,61 +139,46 @@ window.addEventListener("message", function (event) {
         $(".ui").css('animation', 'ShowInven 0.3s forwards');
 
 
-    } else if (event.data.action == "hide") {
-
-        // $('.ui').css('animation', 'out-inven .2s forwards')
-        
-       
-        $(".ui").fadeOut();
-        $(".ui").css('animation', 'HideInven 0.3s forwards');
+    } else if (event.data.action === "hide") {
+        // ซ่อน UI และลบไอเทม
+        $(".ui").fadeOut().css('animation', 'HideInven 0.3s forwards');
         $('.item').remove();
-      
-
-        const audioout = new Audio();
-        audioout.src = "./sound/action.ogg";
-        audioout.play()
-        audioout.volume = 0.1;
-
-
-        $('.container-fast-slot').css('animation', 'OutBoxf .5s forwards')
-        $('.container-text-inventory').css('animation', 'OutBoxf .5s forwards')
-        $('.container-id-player').css('animation', 'OutBoxf .5s forwards')
-
-
-
-
-        $("#col-other").hide();
-        $("#col-inventory").removeClass();
+    
+        // ตรวจสอบว่าเบราว์เซอร์อนุญาตให้เล่นเสียงหรือไม่
+        document.body.addEventListener('click', () => {
+            const audioout = new Audio("./sound/action.ogg");
+            audioout.volume = 0.1;
+        }, { once: true }); // ให้เล่นแค่ครั้งเดียว
+    
+        // ใช้ .each() เพื่อลดโค้ดที่ซ้ำกัน
+        $('.container-fast-slot, .container-text-inventory, .container-id-player').css('animation', 'OutBoxf 0.5s forwards');
+    
+        // ซ่อนองค์ประกอบ UI
+        $("#col-other, #give_id, #count_give, .box-container-give").hide();
         $("#col-inventory").removeClass('opClass');
-
-        $("#give_id").hide();
-
-        $("#count_give").hide();
-
-        $("#modalCount").modal("hide");
-        $("#modalgive").modal("hide");
-
-
-
-
-        $(".box-container-give").fadeOut(20);
-                    
-
-        $(".content-second").removeClass("blur")
-        $(".content-player").removeClass("blur")
+    
+        // ปิด Modal ที่เปิดอยู่
+        $("#modalCount, #modalgive").modal("hide");
+    
+        // ล้างข้อมูลอินเวนทอรี
         $("#second-inventory").empty();
-        $(".header-text-right").html("");
-        $("#sWeight").html(0);
-        $("#sMaxWeight").html(0);
-        $("#sInfo").html("");
-        $(".rmenu").hide();
-        $(".tiptool").hide();
+        $(".header-text-right, #sInfo").html("");
+        $("#sWeight, #sMaxWeight").html(0);
+    
+        // ซ่อนเมนูและ tooltip
+        $(".rmenu, .tiptool").hide();
+    
+        // ปรับขนาด UI โดยใช้ transition
         $('#otherInventory').css("flex", "0");
-        $('.secContent').hide(200, function () {
-            $("#controls").css("flex", "0.15");
-        });
+        $('.secContent').hide(200, () => $("#controls").css("flex", "0.15"));
         $('.controls-logo').css("width", "70%");
-
+    
+        // ลบ blur ออกจากเนื้อหา
+        $(".content-second, .content-player").removeClass("blur");
+    
+    
+    
+    
     } else if (event.data.action == "setType") {
         type = event.data.type;
 
@@ -220,20 +205,20 @@ window.addEventListener("message", function (event) {
 
         $('#id').html(event.data.playerid);
 
-        // $("body").on("input", "input", function () {
-        //     const audio = new Audio();
-        //     audio.src = "./sound/Clicks.ogg";
-        //     audio.play()
-        //     audio.volume = 0.05;
-        //     value = document.getElementById('searchItems').value
-        //     if (value.length >= 1) {
-        //         $('.clear').show()
-        //     }
-        //     else {
-        //         $('.clear').hide()
-        //     }
+        $("body").on("input", "input", function () {
+            const audio = new Audio();
+            audio.src = "./sound/Clicks.ogg";
+            audio.play()
+            audio.volume = 0.05;
+            value = document.getElementById('searchItems').value
+            if (value.length >= 1) {
+                $('.clear').show()
+            }
+            else {
+                $('.clear').hide()
+            }
 
-        // });
+        });
 
         inventorySetup(event.data.itemList, event.data.fastItems);
 
@@ -1865,12 +1850,14 @@ $.widget('ui.dialog', $.ui.dialog, {
         // Invoke parent open method
         this._super();
     },
+
     close: function () {
         // Remove document wide click handler for the current dialog
         $(document).off('click.ui.dialogClickOutside' + this.eventNamespace);
         // Invoke parent close method 
         this._super();
     },
+    
 });
 
 
